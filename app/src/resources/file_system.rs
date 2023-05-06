@@ -1,8 +1,11 @@
 use std::{fs, path::Path};
+
+use walkdir::WalkDir;
+
 #[derive(Debug)]
 pub struct Node {
     name: String,
-    files: usize,
+    files: i32,
     children: Vec<Node>,
 }
 
@@ -17,9 +20,7 @@ impl Node {
         let mut files = 0;
         if path.is_dir() {
             if let Ok(entries) = fs::read_dir(path) {
-                let mut child_files: Vec<String> = Vec::new();
-                get_files(path.clone(), child_files.as_mut());
-                files = child_files.len();
+                files = get_files(path.clone());
                 for entry in entries {
                     if let Ok(entry) = entry {
                         children.push(Node::from_path(&entry.path()));
@@ -48,26 +49,19 @@ impl Node {
         &self.children
     }
 
-    pub fn get_files(&self) -> usize {
+    pub fn get_files(&self) -> i32 {
         self.files.clone()
     }
 }
 
-pub fn get_files<P: AsRef<Path>>(path: P, paths: &mut Vec<String>) {
-
-    // Traverse the folder and its subfolders recursively
-    for entry in fs::read_dir(path).unwrap() {
-        let entry = entry.unwrap();
-        let path = entry.path();
-
-        // If the entry is a directory, count the files in the directory recursively
-        if path.is_dir() {
-            get_files(&path.clone(), paths);
-        } else {
-            // If the entry is a file, increment the count
-            if is_cr2_or_jpg_file(path.clone()) {paths.push(path.to_string_lossy().to_string());}
+pub fn get_files<P: AsRef<Path>>(path: P) -> i32 {
+    let mut count = 0;
+    for entry in WalkDir::new(path).into_iter().filter_map(|e| e.ok()) {
+        if entry.file_type().is_file() && is_cr2_or_jpg_file(entry.path()) {
+            count += 1;
         }
     }
+    count
 }
 
 fn is_cr2_or_jpg_file<P: AsRef<Path>>(path: P) -> bool {
@@ -80,6 +74,10 @@ fn is_cr2_or_jpg_file<P: AsRef<Path>>(path: P) -> bool {
         None => false
     }
 }
+
+
+
+
 
 pub fn is_dir<P: AsRef<Path>>(path: P) -> bool {
     let path = path.as_ref();
