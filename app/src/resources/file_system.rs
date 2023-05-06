@@ -2,6 +2,7 @@ use std::{fs, path::Path};
 #[derive(Debug)]
 pub struct Node {
     name: String,
+    files: usize,
     children: Vec<Node>,
 }
 
@@ -13,8 +14,12 @@ impl Node {
             .map(|s| s.to_string())
             .unwrap_or_else(|| "".to_string());
         let mut children = Vec::new();
+        let mut files = 0;
         if path.is_dir() {
             if let Ok(entries) = fs::read_dir(path) {
+                let mut child_files: Vec<String> = Vec::new();
+                get_files(path.clone(), child_files.as_mut());
+                files = child_files.len();
                 for entry in entries {
                     if let Ok(entry) = entry {
                         children.push(Node::from_path(&entry.path()));
@@ -22,13 +27,15 @@ impl Node {
                 }
             }
         }
-        Node { name, children }
+        Node { name, files, children }
     }
     pub fn new() -> Self{
         let name = "".to_string();
         let children = Vec::new();
+        let files = 0;
         Self {
            name,
+           files,
            children,
         }
     }
@@ -39,6 +46,10 @@ impl Node {
 
     pub fn get_children(&self) -> &Vec<Node> {
         &self.children
+    }
+
+    pub fn get_files(&self) -> usize {
+        self.files.clone()
     }
 }
 

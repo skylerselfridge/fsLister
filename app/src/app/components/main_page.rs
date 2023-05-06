@@ -51,10 +51,8 @@ fn pre_order(root: &Node, dir: &String, ui: &mut eframe::egui::Ui, sort_setting:
     if dir.contains(&root.get_name()){
         s = dir.to_owned();
         if resources::is_dir(s.clone()){
-            let mut files: Vec<String> = Vec::new();
-            resources::get_files(s.clone(), files.as_mut());
-          
-            let g = format!("{}: {} images",s,files.len());
+           
+            let g = format!("{}: {} images",s,root.get_files());
                         
             eframe::egui::CollapsingHeader::new(g)
                 .default_open(true) // set the default state of the header to open
@@ -69,12 +67,8 @@ fn pre_order(root: &Node, dir: &String, ui: &mut eframe::egui::Ui, sort_setting:
                     } else {
                         let mut heap = mmheaps::min_heap::min::MinHeap::<&Node>::new();
                         for n in children {
-                            //pre_order(n, &s, ui);
-                            let child_path = dir.to_owned() + "\\" + &n.get_name();
-                            let mut child_files: Vec<String> = Vec::new();
-                            resources::get_files(child_path.clone(), child_files.as_mut());
-                            let f: i32 = child_files.len().try_into().unwrap();
-                            heap.push(n, f);
+                           
+                            heap.push(n, n.get_files().try_into().unwrap());
                         }
                         for n in heap {
                             pre_order(n, &s, ui, sort_setting);
@@ -85,10 +79,9 @@ fn pre_order(root: &Node, dir: &String, ui: &mut eframe::egui::Ui, sort_setting:
     } else {
         s = dir.to_owned() + "\\" + &root.get_name();
         if resources::is_dir(s.clone()){
-            let mut files: Vec<String> = Vec::new();
-            resources::get_files(s.clone(), files.as_mut());
+           
             let substring = format!("{}{}",dir.to_string(),"\\");
-            let g = format!("{}: {} images",s.replace(&substring,""),files.len());
+            let g = format!("{}: {} images",s.replace(&substring,""),root.get_files());
             eframe::egui::CollapsingHeader::new(g)
                 .default_open(false) // set the default state of the header to open
                 .id_source(s.clone()) // give the header an ID so we can retrieve its state later
