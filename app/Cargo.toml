@@ -1,0 +1,27 @@
+[package]
+authors = ["Skyler Selfridge <skyler.selfridge@gmail.com>"]
+edition = "2018"
+name = "fsLister"
+version = "0.1.0"
+
+[dependencies]
+anyhow = "1.0.51"
+colorsys = "0.6.5"
+dirs = "4.0.0"
+serde = {version = "1.0.132", features = ["derive"]}
+serde_yaml = "0.8"
+mmheaps = "0.1.11"
+
+
+# Ui
+eframe = {git = "https://github.com/AlexxxRu/egui.git", branch = "feature/forward_window"}
+glutin = {version = "0.28.0"}
+winit = "0.26.1"
+
+# SVG Render
+resvg = "0.19.0"
+tiny-skia = "0.6.1"
+usvg = "0.19.0"
+
+nfd = "0.0.4"
+winapi = "0.3.9"
